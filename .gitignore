@@ -1,0 +1,6 @@
+*.npz
+.ipynb_checkpoints
+.DS_Store
+*.out
+*.x
+__pycache__/
