@@ -56,9 +56,13 @@ def generate_csv(npz_file, folder_name = "CSVFiles", save = True):
     pn_reversed = pn[::-1]
     np_reversed = NP[::-1]
     rhonu_reversed = rhonu[::-1]
+    
+    bad_vals = np.where(pn_reversed <= 0)[0]
+    more_bad_vals = np.where(np_reversed <= 0)[0]
+    
 
-    T_fit_pn = CubicSpline(np.log(T_reversed[1:]), np.log(pn_reversed[1:])) #cubic spline fit 
-    T_fit_np = CubicSpline(np.log(T_reversed), np.log(np_reversed)) #cubic spline fit 
+    T_fit_pn = CubicSpline(np.log(T_reversed[len(bad_vals):]), np.log(pn_reversed[len(bad_vals):])) #cubic spline fit 
+    T_fit_np = CubicSpline(np.log(T_reversed[len(more_bad_vals):]), np.log(np_reversed[len(more_bad_vals):])) #cubic spline fit 
     
     T_fit_dqdt = CubicSpline(T_reversed[:-1], dqdt_reversed[:-1]) #cubic spline fit 
     Tcm_fit_rhonu = CubicSpline(Tcm_reversed, rhonu_reversed) #cubic spline fit 
