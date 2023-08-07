@@ -4,3 +4,4 @@
 *.out
 *.x
 __pycache__/
+*.a
