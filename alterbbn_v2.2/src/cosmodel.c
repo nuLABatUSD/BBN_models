@@ -452,8 +452,18 @@ void read_csv(int row, int col, char *filename, double **data)
 	FILE *file;
 	file = fopen(filename, "r"); //what's the r?
     
-    if (file == NULL) {printf("missing %s\n", filename);}
-
+    if (file == NULL) 
+    {
+        printf("missing %s;", filename);
+        char new_filename[256-17];
+        int i;
+        for (i = 0; filename[i+3] != '\0'; i++)
+            new_filename[i] = filename[i+3];
+        new_filename[i] = '\0';
+        printf(" trying %s\n", new_filename);
+        file = fopen(new_filename, "r");
+                      
+    }
 	int i = 0;
 	char line[4098];
 	while (fgets(line, 4098, file) && (i<row))
