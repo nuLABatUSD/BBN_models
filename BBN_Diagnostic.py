@@ -89,7 +89,6 @@ def generate_4(filename,saved_file,file_location):
     plt.figure()
     plt.loglog(T_reversed,p_e_reversed/(T_reversed**4),color='red')
     plt.show()
-    
 
 
 
