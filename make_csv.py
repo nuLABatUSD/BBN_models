@@ -36,7 +36,7 @@ def delete_csv_files(folder_name):
     delete_file(folder_name + "c_rhonu.csv")
     delete_file(folder_name + "d_rhonu.csv")
     
-def generate_csv(npz_file, folder_name = "CSVFiles", save = True):
+def generate_csv(npz_file, folder_name = "CSVFiles", save = True, T_dqdt_transition = 0.6635):
     load_data = np.load(npz_file)
     
     if folder_name[-1] != '/':
@@ -72,6 +72,13 @@ def generate_csv(npz_file, folder_name = "CSVFiles", save = True):
     c_dqdt = T_fit_dqdt(T,1)
     b_dqdt = T_fit_dqdt(T,2)*.5
     a_dqdt = T_fit_dqdt(T,3)*(1/6)
+    
+    for i in range(len(T)):
+        if T[i] < T_dqdt_transition:
+            d_dqdt[i] = 0
+            c_dqdt[i] = 0
+            b_dqdt[i] = 0
+            a_dqdt[i] = 0
             
     d_pn = T_fit_pn(np.log(T))
     c_pn = T_fit_pn(np.log(T),1)
