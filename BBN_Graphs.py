@@ -133,10 +133,7 @@ def process_npz(m_location,name_indicator):
         
 
 
-# In[7]:
 
-
-process_npz("../RMFK_Results/","processed")
 
 
 # Allows us get BBN abundances for various mass files. Takes same inputs as the previous function, but it also requires the location of the processed mass files. Both sets of files may not be in the same location. Returns some diagnostic plots.
@@ -167,11 +164,6 @@ def BBN_Abundances(m_location,p_m_location,name_indicator,BBN_abun_indicator):
         print(f"final eta value from evolution_vs.out is {eta_final}")
         np.savez(f"{BBN_abun_indicator}-{npz_file}",BBN_abun = BBNA)
 
-
-# In[9]:
-
-
-BBN_Abundances("../RMFK_Results","../BBN_models/","processed","BBN-Abundances")
 
 
 # In[10]:
@@ -246,13 +238,7 @@ def element_plots(BBN_abun_location,m_location,BBN_abun_indicator):
     plt.show()
 
 
-# In[11]:
 
-
-element_plots("../BBN_models","../RMFK_Results/","BBN-Abundances")
-
-
-# In[ ]:
 
 
 
