@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[311]:
+# In[1]:
 
 
 import numpy as np
@@ -13,11 +13,12 @@ import pandas as pd
 import make_csv
 import BBN_Values as BBN_V
 import os 
+from scipy.interpolate import CubicSpline
 
 
 # The function below takes a mass file as an input as well as a file-name that you would like to be saved. It will be saved as a .npz file and should be the input to generate_2 and generate_3
 
-# In[312]:
+# In[2]:
 
 
 def generate_1(filename,saved_file): 
@@ -26,16 +27,27 @@ def generate_1(filename,saved_file):
 
 # This function takes saved_file and generates all the CSV files. In order to make sure the function has ran correctly, go to downloads-->BBN_model-->alterbbn_v2.2-->CSVFiles. All the files here should have been updated seconds ago if the function is running correctly. 
 
-# In[313]:
+# In[3]:
 
 
 def generate_2(saved_file):
-    make_csv.generate_csv(saved_file, folder_name="alterbbn_v2.2/CSVFiles/")
+    npz_data = np.load(saved_file)
+    T = npz_data['T']
+    dqdt = npz_data['dQdt']
+    T_fit_dqdt = CubicSpline(T[::-1], dqdt[::-1])
+    TT = np.logspace(-2,1,1000)
+    
+    derivative = np.diff(T_fit_dqdt(TT))/(np.diff(TT))
+    q = np.where(derivative<0)[0]
+    tran = q[-1]
+    cutoff = TT[tran]
+    
+    make_csv.generate_csv(saved_file, folder_name="alterbbn_v2.2/CSVFiles/",T_dqdt_transition = cutoff)
 
 
 # This function takes saved_file as in input as well. It then runs the file alter_vs.c to generate a new evolution_vs.out file. In order to make sure this function has run correctly go to downloads-->BBN_models. The file called evolution_vs.out should have been updated seconds ago if the function was running correctly with no errors. 
 
-# In[314]:
+# In[4]:
 
 
 def generate_3(saved_file):
@@ -47,13 +59,20 @@ def generate_3(saved_file):
     m_s = actual_data['vs_mass']
     mix = actual_data['mix_ang']
     row = actual_data['row']
-
-    subprocess.run(['./alterbbn_v2.2/alter_vs.x', str(T_init),str(eta_init),str(fail_safe),str(row),str(ns_init),str(m_s),str(mix)], capture_output = True, text = False)
+    
+    eta_0 = 6.1*10**-10
+    a_0 = actual_data['scale'][0]
+    a_f = actual_data['scale'][-1]
+    T_f = actual_data['T'][-1]
+    eta_in = (((eta_0))*(a_0*T_init)**3/((a_f*T_f)**3)*(11/4))
+    
+    
+    subprocess.run(['./alterbbn_v2.2/alter_vs.x', str(T_init),str(eta_in),str(fail_safe),str(row),str(ns_init),str(m_s),str(mix)], capture_output = True, text = False)
 
 
 # generates diagnostics as a test 
 
-# In[341]:
+# In[5]:
 
 
 def generate_4(filename,saved_file,evolution_file):
@@ -103,25 +122,26 @@ def generate_4(filename,saved_file,evolution_file):
 
 # This function allows us to created the processed mass file where we calculate various energy densities and dQ/dt. First input is the location of the mass files. Second input is the name of the name_indicator. A saved file will be created and name_indicator will be the word at the start of beginning of the mass file. This file with name_indicator at the beginning is the processed mass file. 
 
-# In[342]:
+# In[6]:
 
 
 def process_npz(m_location,name_indicator):
     folder_contents = os.listdir(m_location)
     npz_files = [item for item in folder_contents if item.endswith(".npz")]
     for npz_file in npz_files:
-        BBN_D.generate_1(f"../RMFK_Results/{npz_file}",f"{name_indicator}-{npz_file}")
+        generate_1(f"../RMFK_Results/{npz_file}",f"{name_indicator}-{npz_file}")
         
 
 
+# In[7]:
 
 
-
+process_npz("../RMFK_Results/","processed")
 
 
 # Allows us get BBN abundances for various mass files. Takes same inputs as the previous function, but it also requires the location of the processed mass files. Both sets of files may not be in the same location. Returns some diagnostic plots.
 
-# In[362]:
+# In[8]:
 
 
 def BBN_Abundances(m_location,p_m_location,name_indicator,BBN_abun_indicator):
@@ -148,8 +168,13 @@ def BBN_Abundances(m_location,p_m_location,name_indicator,BBN_abun_indicator):
         np.savez(f"{BBN_abun_indicator}-{npz_file}",BBN_abun = BBNA)
 
 
-# In[363]:
+# In[9]:
 
+
+BBN_Abundances("../RMFK_Results","../BBN_models/","processed","BBN-Abundances")
+
+
+# In[10]:
 
 
 def element_plots(BBN_abun_location,m_location,BBN_abun_indicator):
@@ -202,17 +227,32 @@ def element_plots(BBN_abun_location,m_location,BBN_abun_indicator):
         Be7 = value[19][-1]
         Be_7_final.append(Be7)
     
+    Be_7_array = np.array(Be_7_final)
+    Li_7_array = np.array(Li_7_final)
+    
     plt.figure()
     plt.loglog(lifetimes,H2_final,color='red')
-    plt.loglog(lifetimes,H3_final,color='green')
-    plt.loglog(lifetimes,He_3_final,color='blue')
-    plt.loglog(lifetimes,He_4_final,color='gold')
-    plt.loglog(lifetimes,Li_6_final,color='orange')
+    plt.show()
+    
+    
+    plt.figure()
     plt.loglog(lifetimes,Li_7_final,color='purple')
     plt.loglog(lifetimes,Be_7_final,color='black')
     plt.show()
+    
+    
+    plt.figure()
+    plt.loglog(lifetimes,Be_7_array+Li_7_array,color='black')
+    plt.show()
 
 
+# In[11]:
+
+
+element_plots("../BBN_models","../RMFK_Results/","BBN-Abundances")
+
+
+# In[ ]:
 
 
 
