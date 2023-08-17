@@ -105,7 +105,7 @@ def imp_values(filename,saved_file):
     
     
    
-    np.savez(saved_file, T = temp, Tcm = temp_cm, dQdt = dqdt, pn = p_n, np = n_p, rhonu = p_v, T_initial = T_0, eta_initial = eta_0, failsafe = fail_safe, ns_0 = ns_initial, vs_mass = m_s, mix_ang = mix, row = roww, pe_dens = p_e)
+    np.savez(saved_file, T = temp, Tcm = temp_cm, dQdt = dqdt, pn = p_n, np = n_p, rhonu = p_v, T_initial = T_0, eta_initial = eta_0, failsafe = fail_safe, ns_0 = ns_initial, vs_mass = m_s, mix_ang = mix, row = roww, pe_dens = p_e, scale = a)
 
     
     
