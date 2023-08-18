@@ -7,3 +7,5 @@ The next function to be ran is the BBN_Abundances which generates the BBN abunda
 The last function to be run will be element_plots which generates some essential plots of BBN Abundances versus lifetimes. This function takes inputs BBN_abun_location, mass file location, and the same BBN_abun_indicator used in the previosu function. 
 
 Out of all the functions in this .py, these are the only ones that would need to be run to generate plots/diagnostics we need. 
+
+Current plots as of 8/17 can be found in BBN_Graphs.ipynb
